@@ -67,3 +67,26 @@ jobs:
       - name: Lancer les tests
         run: npm test
         working-directory: node-app
+
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Préparer la BDD
+        run: bash db/setup.sh
+
+      - name: Installer PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo, pdo_pgsql
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction
+        working-directory: php-app
+
+      - name: Lancer les tests
+        run: vendor/bin/phpunit tests
+        working-directory: php-app
