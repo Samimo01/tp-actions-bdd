@@ -26,3 +26,23 @@ jobs:
       - name: Lancer les tests
         run: pytest -v
         working-directory: python-app
+ 
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Préparer la BDD
+        run: bash db/setup.sh
+
+      - name: Installer Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Compiler et lancer les tests
+        run: mvn -B package
+        working-directory: java-app
+  
