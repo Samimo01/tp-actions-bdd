@@ -28,4 +28,7 @@ def get_student(conn, student_id):
 
 
 def average_grade(conn):
-    raise NotImplementedError # Erreur volontaire
+    with conn.cursor() as cur:
+        cur.execute("SELECT COALESCE(AVG(grade), 0.0) FROM students")
+        row = cur.fetchone()
+    return float(row[0])
