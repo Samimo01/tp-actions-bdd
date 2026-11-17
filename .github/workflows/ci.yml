@@ -7,6 +7,9 @@ on:
 jobs:
   python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
@@ -14,10 +17,10 @@ jobs:
       - name: Préparer la BDD
         run: bash db/setup.sh
 
-      - name: Installer Python 3.12
+      - name: Installer Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Installer les dépendances
         run: pip install -r requirements.txt
@@ -90,3 +93,23 @@ jobs:
       - name: Lancer les tests
         run: vendor/bin/phpunit tests
         working-directory: php-app
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [python, node, java, php]
+    steps:
+      - name: Build
+        run: echo "Les 4 jobs de tests ont réussi, build en cours"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Déploiement
+        run: echo "Déploiement en cours"
+
+      - name: Vérifier le secret
+        env:
+          TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: test -n "$TOKEN" && echo "Token présent"
